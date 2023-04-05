@@ -3,8 +3,8 @@
 using namespace std;
 //declaring constants
 int N = 9;
-vector<vector<int> > nums {{0,0,0,0,0,0,0,0,0},
-			   {0,8,1,0,0,0,0,0,0},
+vector<vector<int> > nums {{1,0,0,0,0,0,0,0,0},
+			   {1,8,1,0,0,0,0,0,0},
 			   {0,4,0,0,0,0,0,0,0},
 			   {0,0,0,0,0,0,0,0,0},
 			   {0,0,0,0,0,0,0,0,0},
@@ -12,6 +12,7 @@ vector<vector<int> > nums {{0,0,0,0,0,0,0,0,0},
 			   {0,0,0,0,0,0,0,0,0},
 			   {0,0,0,0,0,0,0,0,0},
 			   {0,0,0,0,0,0,0,0,0}};
+bool touchable[9][9];
 //SubGrid Counter
 //
 // 1 | 2 | 3
@@ -29,46 +30,65 @@ vector<vector<int> > nums {{0,0,0,0,0,0,0,0,0},
 //Grid9: 6,6
 
 //function for checking if number is present in row (horizontal)
-bool checkNumberRow (int row, int search) {
-	int searchRow = row - 1;
-
-	for (int i = 0; i < nums[searchRow].size(); i++){
-		if (nums[searchRow][i] == search){
-			return true;
+bool checkRowValid(int row) {
+	bool* squares=(bool*)malloc(sizeof(bool)*10);
+	for (int i = 0; i < 9; i++){
+		if(squares[nums[row][i]]&&nums[row][i]>0){
+			free(squares);
+			return false;
 		}
+		else squares[nums[row][i]]=true;
 	}
-	return false;
+	free(squares);
+	return true;
 }
 
 //function for checking number presence in col (vertical)
-bool checkNumberCol (int col, int search) {
-	int searchCol = col - 1;
-	
-	for (int i = 0; i < nums.size();i++){
-		if (nums[i][searchCol] == search){
-			return true;
+bool checkColumnValid (int col) {
+	bool* squares=(bool*)malloc(sizeof(bool)*10);
+	for (int i = 0; i < 9;i++){
+		if (squares[nums[i][col]]&&nums[i][col]>0){
+			free(squares);
+			return false;
 		}
+		else squares[nums[i][col]]=true;
 	}
-	return false;
+	free(squares);
+	return true;
 }
 
-//function for checking number presence in subgrid (1-9)
-bool checkSquare (int squareRow, int squareCol, int search){
-       for (int i = squareRow; i < squareRow + 3; i++) {
-	       for (int j = squareCol; j < squareCol + 3; j++){
-		       if (nums[i][j] == search) {
-			       return true;
-			}
+//checks if the square is valid (only contains one of each number)
+bool checkSquareValid (int squareRow, int squareCol){
+	bool* squares=(bool*)malloc(sizeof(bool)*10);
+       	for (int i = squareRow; i < squareRow + 3; i++) {
+		for (int j = squareCol; j < squareCol + 3; j++){
+			if(i<9 && j<9){
+				if (squares[nums[i][j]]&&nums[i][j]>0) {
+					free(squares);
+			       		return false;
+				}
+				else squares[nums[i][j]]=true;
+		       }
 		}
 	}
-       return false;
-		
-}       
-
-
-int main(int argc, char* argv[]){
-
-	//loop for printing out grid layout 
+       free(squares);
+       return true;	
+}      
+bool checkBoard(){//returns true is board is valid
+	for(int h=0;h<9;h++){
+		for(int v=0;v<9;v++){
+			if(!checkColumnValid(v))return false;	
+		}
+		if(!checkRowValid(h))return false;
+	}
+	for(int i=0;i<3;i++){
+		for(int j=0;j<3;j++){
+			if(!checkSquareValid(i*3,j*3))return false;
+		}
+	}
+	return true;	
+}
+void printBoard(){
 	for (int row = 0; row < nums.size(); row++) {
 		//using a while loop for horizontal line
 		int counter = 11;
@@ -88,12 +108,52 @@ int main(int argc, char* argv[]){
 		}
 	cout<<endl;
 	}
-	
-	bool testing = checkSquare(0, 0, 8);
-	
-	if (testing == true){
-		cout << "True!";
-	} else {
-		cout << "False!";
+
+}
+bool solved(){
+	for(int h=0;h<9;h++){
+		for(int v=0;v<9;v++){
+			if(nums[v][h]==0)return false;
+		}
+	}
+	return true;
+}
+void createTouchable(){
+	for(int v=0;v<9;v++){
+		for(int h=0;h<9;h++){
+			if(nums[v][h]==0)touchable[v][h]=true;
+		}
 	}
 }
+void solve(){
+	for(int h=0;h<9;h++){
+		for(int v=0;v<9;v++){
+				while(!checkBoard()&&touchable[v][h]){
+					nums[v][h]++;
+					if(nums[v][h]>=10){//if all numbers have been tried and still failed, go back to the previous square
+						nums[v][h]=0;
+						v--;
+					}
+					if(v<0){//if the entire column failed, go back to the bottom of previous
+						h--;
+						v=8;
+					}
+					if(h<0){
+						cout<<"unsolvable";
+						return;
+					}
+				}
+			printBoard();
+			cout<<'\n';
+		}	
+	}
+}
+
+
+int main(int argc, char* argv[]){
+	createTouchable();
+	solve();	
+}
+//git add.
+//git commit
+//git push
