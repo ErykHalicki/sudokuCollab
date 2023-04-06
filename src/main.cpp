@@ -4,7 +4,7 @@
 #include <chrono>         // std::chrono::seconds
 using namespace std;
 //declaring constants
-bool showProcess=false;
+bool showProcess=true;
 vector<vector<int> > nums {{5,3,0,0,7,0,0,0,0},
 			   {6,0,0,1,9,5,0,0,0},
 			   {0,9,8,0,0,0,0,6,0},
@@ -123,8 +123,7 @@ void createTouchable(){
 }
 void solve(int v, int h, int direction){
 	if(showProcess){//if you want to see each iteration of the board  (debugging purposes)
-		this_thread::sleep_for (std::chrono::milliseconds(10));
-		system("clear");
+		this_thread::sleep_for (std::chrono::milliseconds(1));
 		cout<<"currently solving square: "<<h+1<<","<<v+1;	
 		cout<<'\n';
 		printBoard();
